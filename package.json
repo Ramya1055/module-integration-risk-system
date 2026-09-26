@@ -1,0 +1,21 @@
+{
+  "name": "module-integration-risk-system",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^22.20.4",
+    "hardhat": "^3.18.0",
+    "typescript": "~6.0.3"
+  }
+}

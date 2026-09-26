@@ -1,0 +1,186 @@
+﻿{
+    "integration":  {
+                        "integration_id":  "INT-000006",
+                        "existing_module":  "SpendingLimitModule",
+                        "proposed_module":  "SafeModule",
+                        "contract_address":  "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+                        "network":  "local",
+                        "status":  "FINALIZED",
+                        "start_time":  "2026-09-26T19:20:58.922799",
+                        "end_time":  "2026-09-26T19:25:52.578446"
+                    },
+    "module_profiles":  [
+                            {
+                                "module_name":  "SafeModule",
+                                "source_file":  "C:\\Users\\Ramya\\module-integration-risk-system\\blockchain\\contracts\\SafeModule.sol",
+                                "source_lines":  51,
+                                "function_count":  2,
+                                "state_variable_count":  2,
+                                "external_call_count":  0,
+                                "event_count":  1,
+                                "modifier_count":  1,
+                                "payable_function_count":  0,
+                                "interface_count":  0,
+                                "dependency_count":  0
+                            }
+                        ],
+    "metrics":  [
+                    {
+                        "phase":  "BASELINE",
+                        "timestamp":  "2026-09-26T19:20:59.948927",
+                        "cpu_percent":  29.0,
+                        "memory_percent":  94.9,
+                        "error_count":  0
+                    },
+                    {
+                        "phase":  "DURING_INTEGRATION",
+                        "timestamp":  "2026-09-26T19:25:01.179595",
+                        "cpu_percent":  18.8,
+                        "memory_percent":  94.6,
+                        "error_count":  0
+                    },
+                    {
+                        "phase":  "DURING_INTEGRATION",
+                        "timestamp":  "2026-09-26T19:25:04.241961",
+                        "cpu_percent":  22.3,
+                        "memory_percent":  94.5,
+                        "error_count":  0
+                    },
+                    {
+                        "phase":  "DURING_INTEGRATION",
+                        "timestamp":  "2026-09-26T19:25:07.291261",
+                        "cpu_percent":  18.3,
+                        "memory_percent":  94.5,
+                        "error_count":  0
+                    },
+                    {
+                        "phase":  "DURING_INTEGRATION",
+                        "timestamp":  "2026-09-26T19:25:10.357257",
+                        "cpu_percent":  18.6,
+                        "memory_percent":  94.4,
+                        "error_count":  0
+                    },
+                    {
+                        "phase":  "DURING_INTEGRATION",
+                        "timestamp":  "2026-09-26T19:25:13.401364",
+                        "cpu_percent":  18.8,
+                        "memory_percent":  94.1,
+                        "error_count":  0
+                    }
+                ],
+    "performance_analysis":  {
+                                 "baseline_cpu":  29.0,
+                                 "baseline_memory":  94.9,
+                                 "runtime_sample_count":  5,
+                                 "average_runtime_cpu":  19.36,
+                                 "average_runtime_memory":  94.42,
+                                 "cpu_change":  -9.64,
+                                 "memory_change":  -0.480000000000004,
+                                 "total_runtime_errors":  0
+                             },
+    "security_findings":  [
+
+                          ],
+    "blockchain_transactions":  [
+                                    {
+                                        "transaction_hash":  "ee64b5742dbed42ef4ede52423996e4c5b8dbe61f0a96dbc9ad002f9d63ef424",
+                                        "from_address":  "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+                                        "to_address":  "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+                                        "block_number":  4,
+                                        "gas_limit":  200000,
+                                        "gas_used":  30379,
+                                        "status":  1,
+                                        "created_at":  "2026-09-26T19:24:08.942877"
+                                    }
+                                ],
+    "events":  [
+                   {
+                       "event_type":  "BASELINE_CAPTURED",
+                       "component":  "baseline",
+                       "severity":  "INFO",
+                       "source":  "integration_service",
+                       "description":  "Baseline metrics and proposed module profile were captured successfully.",
+                       "timestamp":  "2026-09-26T19:21:00.056971"
+                   },
+                   {
+                       "event_type":  "MONITORING_STARTED",
+                       "component":  "monitoring",
+                       "severity":  "INFO",
+                       "source":  "integration_service",
+                       "description":  "Runtime monitoring started for the integration.",
+                       "timestamp":  "2026-09-26T19:21:30.318068"
+                   },
+                   {
+                       "event_type":  "RUNTIME_METRIC_COLLECTED",
+                       "component":  "runtime_monitor",
+                       "severity":  "INFO",
+                       "source":  "monitoring_loop",
+                       "description":  "A runtime system metric was collected during repeated integration monitoring.",
+                       "timestamp":  "2026-09-26T19:25:01.209687"
+                   },
+                   {
+                       "event_type":  "RUNTIME_METRIC_COLLECTED",
+                       "component":  "runtime_monitor",
+                       "severity":  "INFO",
+                       "source":  "monitoring_loop",
+                       "description":  "A runtime system metric was collected during repeated integration monitoring.",
+                       "timestamp":  "2026-09-26T19:25:04.267053"
+                   },
+                   {
+                       "event_type":  "RUNTIME_METRIC_COLLECTED",
+                       "component":  "runtime_monitor",
+                       "severity":  "INFO",
+                       "source":  "monitoring_loop",
+                       "description":  "A runtime system metric was collected during repeated integration monitoring.",
+                       "timestamp":  "2026-09-26T19:25:07.333241"
+                   },
+                   {
+                       "event_type":  "RUNTIME_METRIC_COLLECTED",
+                       "component":  "runtime_monitor",
+                       "severity":  "INFO",
+                       "source":  "monitoring_loop",
+                       "description":  "A runtime system metric was collected during repeated integration monitoring.",
+                       "timestamp":  "2026-09-26T19:25:10.378752"
+                   },
+                   {
+                       "event_type":  "RUNTIME_METRIC_COLLECTED",
+                       "component":  "runtime_monitor",
+                       "severity":  "INFO",
+                       "source":  "monitoring_loop",
+                       "description":  "A runtime system metric was collected during repeated integration monitoring.",
+                       "timestamp":  "2026-09-26T19:25:13.423469"
+                   },
+                   {
+                       "event_type":  "INTEGRATION_COMPLETED",
+                       "component":  "integration_service",
+                       "severity":  "INFO",
+                       "source":  "integration_service",
+                       "description":  "Integration monitoring completed successfully.",
+                       "timestamp":  "2026-09-26T19:25:52.605629"
+                   },
+                   {
+                       "event_type":  "POST_ANALYSIS_COMPLETED",
+                       "component":  "performance_analyzer",
+                       "severity":  "INFO",
+                       "source":  "integration_service",
+                       "description":  "Post-integration performance analysis was completed successfully.",
+                       "timestamp":  "2026-09-26T19:26:23.770336"
+                   },
+                   {
+                       "event_type":  "SECURITY_ANALYSIS_COMPLETED",
+                       "component":  "security_analyzer",
+                       "severity":  "INFO",
+                       "source":  "integration_service",
+                       "description":  "Security analysis completed. 0 finding(s) recorded.",
+                       "timestamp":  "2026-09-26T19:27:01.561689"
+                   },
+                   {
+                       "event_type":  "INTEGRATION_FINALIZED",
+                       "component":  "integration_service",
+                       "severity":  "INFO",
+                       "source":  "integration_service",
+                       "description":  "All planned Stage 1 observations and analyses were completed and the integration was finalized.",
+                       "timestamp":  "2026-09-26T19:27:34.068270"
+                   }
+               ]
+}
