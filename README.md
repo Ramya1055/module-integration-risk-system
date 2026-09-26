@@ -637,6 +637,697 @@ The demonstration reads the finalized integration report and displays:
 
 ---
 
+# From-Scratch Setup and Implementation
+
+This section explains how to clone the repository and run the complete Stage 1 system from a clean Windows environment.
+
+The instructions below reproduce the implementation using the technologies and scripts included in this repository.
+
+### 1. Prerequisites
+
+Install the following software before starting:
+
+* Python 3.11
+* Node.js and npm
+* Git
+
+Verify the installations:
+
+```powershell
+python --version
+node --version
+npm --version
+git --version
+```
+
+This project does **not** require Foundry, Forge, Cast, or Anvil.
+
+The local blockchain is provided by **Hardhat Network**.
+
+---
+
+### 2. Clone the Repository
+
+Open PowerShell and clone the repository:
+
+```powershell
+git clone https://github.com/Ramya1055/module-integration-risk-system.git
+```
+
+Move into the project directory:
+
+```powershell
+cd module-integration-risk-system
+```
+
+---
+
+### 3. Create the Python Virtual Environment
+
+Create a virtual environment:
+
+```powershell
+python -m venv .venv
+```
+
+Activate it:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+If PowerShell shows that script execution is restricted, run:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
+
+Then activate the environment again:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+The terminal should now show:
+
+```text
+(.venv)
+```
+
+---
+
+### 4. Install Python Dependencies
+
+Install the dependencies recorded in `requirements.txt`:
+
+```powershell
+pip install -r requirements.txt
+```
+
+The main packages used by the Stage 1 implementation include:
+
+* FastAPI
+* Uvicorn
+* SQLAlchemy
+* Pydantic
+* psutil
+* Web3.py
+* pandas
+* pytest
+* pytest-asyncio
+
+The repository contains the complete `requirements.txt` generated from the development environment.
+
+---
+
+### 5. Install Node.js Dependencies
+
+Install the Node.js and Hardhat dependencies:
+
+```powershell
+npm install
+```
+
+Verify Hardhat:
+
+```powershell
+npx hardhat --version
+```
+
+The project uses Hardhat for the local Ethereum-compatible blockchain environment and Solidity compilation.
+
+---
+
+### 6. Initialize the SQLite Database
+
+Create the database tables:
+
+```powershell
+python database\init_db.py
+```
+
+Expected output:
+
+```text
+Database initialized successfully.
+```
+
+The SQLite database is:
+
+```text
+integration_system.db
+```
+
+The database contains the tables used for:
+
+* integrations
+* module profiles
+* system metrics
+* integration events
+* performance analysis
+* security findings
+* blockchain transactions
+
+---
+
+### 7. Compile the Smart Contracts
+
+Compile the Solidity contracts:
+
+```powershell
+npx hardhat compile
+```
+
+The contracts are located in:
+
+```text
+blockchain\contracts\
+```
+
+The compiled artifacts are generated under:
+
+```text
+artifacts\
+```
+
+---
+
+### 8. Start the Local Hardhat Blockchain
+
+Open a **new PowerShell terminal**.
+
+Move to the project directory:
+
+```powershell
+cd module-integration-risk-system
+```
+
+Start the local blockchain:
+
+```powershell
+npx hardhat node
+```
+
+Keep this terminal running.
+
+The application connects to:
+
+```text
+http://127.0.0.1:8545
+```
+
+Hardhat provides local test accounts that are used by the deployment and blockchain-monitoring components.
+
+---
+
+### 9. Start the FastAPI Application
+
+Open another PowerShell terminal.
+
+Move to the project directory:
+
+```powershell
+cd module-integration-risk-system
+```
+
+Activate the virtual environment:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+Start FastAPI:
+
+```powershell
+uvicorn backend.app.main:app --reload
+```
+
+The API will be available at:
+
+```text
+http://127.0.0.1:8000
+```
+
+The interactive API documentation is available through Swagger UI:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+Keep this terminal running as well.
+
+At this point, two terminals should remain active:
+
+```text
+Terminal 1 → npx hardhat node
+Terminal 2 → uvicorn backend.app.main:app --reload
+```
+
+---
+
+### 10. Deploy the Test Smart Contract
+
+Open a third PowerShell terminal.
+
+Activate the virtual environment:
+
+```powershell
+cd module-integration-risk-system
+.\.venv\Scripts\Activate.ps1
+```
+
+Deploy the included `SafeModule` contract:
+
+```powershell
+python scripts\deploy_test_contract.py
+```
+
+The deployment script:
+
+1. connects to the local Hardhat blockchain
+2. loads the compiled `SafeModule` artifact
+3. obtains the first Hardhat account
+4. deploys `SafeModule`
+5. waits for the deployment transaction
+6. prints the deployed contract address
+7. prints the deployment transaction hash
+8. prints the block number and gas used
+
+Example output:
+
+```text
+Local contract deployment successful.
+--------------------------------
+Contract: SafeModule
+Deployer: <Hardhat account>
+Address: <deployed contract address>
+Transaction hash: <deployment transaction hash>
+Block number: <block number>
+Gas used: <gas used>
+```
+
+**Important:** The contract address may be different on a fresh run. Use the address printed by this command in the integration creation step.
+
+---
+
+### 11. Open the API Documentation
+
+Open:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+The Stage 1 workflow can be executed through the FastAPI endpoints shown in Swagger UI.
+
+The complete workflow is:
+
+```text
+Create Integration
+        ↓
+Start Integration
+        ↓
+Begin Monitoring
+        ↓
+Collect Runtime Samples
+        ↓
+Complete Integration
+        ↓
+Performance Analysis
+        ↓
+Security Analysis
+        ↓
+Record Blockchain Transaction
+        ↓
+Finalize Integration
+        ↓
+Generate Final Report
+```
+
+---
+
+### 12. Create a New Integration
+
+In Swagger UI, use:
+
+```text
+POST /integrations
+```
+
+Select **Try it out** and provide:
+
+```json
+{
+  "existing_module": "SpendingLimitModule",
+  "proposed_module": "SafeModule",
+  "contract_address": "<DEPLOYED_CONTRACT_ADDRESS>",
+  "network": "local"
+}
+```
+
+Replace `<DEPLOYED_CONTRACT_ADDRESS>` with the address printed by the deployment script.
+
+The system automatically generates an integration ID.
+
+For example:
+
+```text
+INT-000001
+```
+
+The newly created integration starts with:
+
+```text
+CREATED
+```
+
+Save the generated integration ID because it is required for the remaining API operations.
+
+---
+
+### 13. Start the Integration
+
+Use:
+
+```text
+POST /integrations/{integration_id}/start
+```
+
+For example:
+
+```text
+POST /integrations/INT-000001/start
+```
+
+This starts the integration and captures the baseline system measurements.
+
+The lifecycle moves from:
+
+```text
+CREATED
+    ↓
+INITIALIZING
+    ↓
+BASELINE_CAPTURED
+```
+
+The baseline records CPU usage, memory usage, and error information.
+
+---
+
+### 14. Begin Runtime Monitoring
+
+Use:
+
+```text
+POST /integrations/{integration_id}/begin-monitoring
+```
+
+For example:
+
+```text
+POST /integrations/INT-000001/begin-monitoring
+```
+
+This begins the runtime monitoring phase.
+
+---
+
+### 15. Collect Runtime Samples
+
+Use:
+
+```text
+POST /integrations/{integration_id}/runtime-samples
+```
+
+The endpoint accepts:
+
+```text
+sample_count
+interval_seconds
+```
+
+The demonstration uses:
+
+```text
+sample_count = 5
+interval_seconds = 2
+```
+
+Therefore, the request can be made as:
+
+```text
+POST /integrations/INT-000001/runtime-samples?sample_count=5&interval_seconds=2
+```
+
+The system records CPU, memory, and runtime error observations for each sample.
+
+Each sample is stored as a system metric and associated with the integration.
+
+---
+
+### 16. Complete the Integration
+
+Use:
+
+```text
+POST /integrations/{integration_id}/complete
+```
+
+For example:
+
+```text
+POST /integrations/INT-000001/complete
+```
+
+This completes the integration phase and records the integration end time.
+
+---
+
+### 17. Perform Performance Analysis
+
+Use:
+
+```text
+POST /integrations/{integration_id}/analyze
+```
+
+For example:
+
+```text
+POST /integrations/INT-000001/analyze
+```
+
+The performance analyzer compares the baseline observations with the runtime observations.
+
+It calculates measurements such as:
+
+* baseline CPU
+* baseline memory
+* average runtime CPU
+* average runtime memory
+* CPU change
+* memory change
+* runtime sample count
+* runtime error count
+
+These results are stored in the `performance_analysis` table.
+
+---
+
+### 18. Perform Security Analysis
+
+Use:
+
+```text
+POST /integrations/{integration_id}/security-analysis
+```
+
+For example:
+
+```text
+POST /integrations/INT-000001/security-analysis
+```
+
+The current Stage 1 security analyzer is a prototype rule/pattern detector.
+
+It checks the Solidity source for implemented patterns such as:
+
+```text
+delegatecall
+call
+send
+transfer
+```
+
+Any detected pattern is recorded as a security finding with supporting evidence.
+
+A result containing zero findings means:
+
+> No findings were detected by the implemented security analysis rules.
+
+It does **not** mean that the smart contract has been proven completely secure.
+
+---
+
+### 19. Record the Blockchain Transaction
+
+The blockchain execution can be observed and stored as part of the integration.
+
+Use:
+
+```text
+POST /integrations/{integration_id}/blockchain-transaction
+```
+
+Provide the transaction hash produced by the blockchain execution.
+
+For example:
+
+```text
+POST /integrations/INT-000001/blockchain-transaction?transaction_hash=<TRANSACTION_HASH>
+```
+
+The system retrieves the transaction details from the local Hardhat blockchain and stores:
+
+* transaction hash
+* sender address
+* receiver address
+* block number
+* gas limit
+* gas used
+* transaction status
+
+The transaction is linked to the integration ID.
+
+---
+
+### 20. Finalize the Integration
+
+After the analysis and blockchain transaction have been recorded, use:
+
+```text
+POST /integrations/{integration_id}/finalize
+```
+
+For example:
+
+```text
+POST /integrations/INT-000001/finalize
+```
+
+The integration reaches:
+
+```text
+FINALIZED
+```
+
+---
+
+### 21. Generate the Final Integration Report
+
+Use:
+
+```text
+GET /integrations/{integration_id}/report
+```
+
+For example:
+
+```text
+GET /integrations/INT-000001/report
+```
+
+The report combines the collected Stage 1 evidence, including:
+
+* integration information
+* module profile
+* system metrics
+* performance analysis
+* security findings
+* blockchain transactions
+* integration event history
+* final lifecycle status
+
+The report can be saved as a JSON file under the `reports` directory.
+
+For example, in PowerShell:
+
+```powershell
+Invoke-RestMethod "http://127.0.0.1:8000/integrations/INT-000001/report" |
+ConvertTo-Json -Depth 20 |
+Set-Content "reports\INT-000001_report.json" -Encoding UTF8
+```
+
+Replace `INT-000001` with the integration ID generated during your run.
+
+---
+
+### 22. Run the Demonstration Script
+
+After generating the report, run:
+
+```powershell
+python scripts\demo.py
+```
+
+The demonstration script reads the generated report and displays:
+
+* integration information
+* proposed module profile
+* performance observations
+* security analysis
+* blockchain transaction
+* event history
+* final report status
+
+---
+
+### 23. Expected Stage 1 Result
+
+A successful execution should produce evidence corresponding to the following lifecycle:
+
+```text
+CREATED
+   ↓
+INITIALIZING
+   ↓
+BASELINE_CAPTURED
+   ↓
+IN_PROGRESS
+   ↓
+COMPLETED
+   ↓
+POST_ANALYSIS
+   ↓
+FINALIZED
+```
+
+The database should contain the corresponding records for the integration, measurements, events, analyses, security findings, and blockchain transactions.
+
+The exact numeric measurements, transaction hash, contract address, gas usage, and integration ID can differ between runs because they depend on the local machine and the fresh Hardhat blockchain state.
+
+---
+
+### 24. Reproducibility Notes
+
+The following points are important when reproducing the project:
+
+* The project uses SQLite; no separate database server is required.
+* Hardhat provides the local blockchain; Forge, Cast, and Anvil are not required.
+* The local blockchain must remain running while blockchain-related operations are performed.
+* FastAPI must remain running while Swagger/API operations are performed.
+* A fresh Hardhat node can generate different contract addresses and transaction hashes.
+* Integration IDs are generated automatically from the integrations currently stored in the database.
+* The current security analyzer is a prototype pattern-based detector and should not be interpreted as a complete smart-contract vulnerability scanner.
+* Stage 1 collects and analyzes evidence. It does not train a machine-learning model or generate ML-based risk predictions.
+
+This procedure allows another user to clone the repository, install the required dependencies, initialize the database, compile and deploy the smart contract, execute the Stage 1 integration workflow, store the observations, and generate the final integration report.
+
+
+
+
 # 22. Project Structure
 
 ```text
