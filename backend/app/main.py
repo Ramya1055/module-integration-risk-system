@@ -27,3 +27,5 @@ def health():
     return {
         "status": "healthy"
     }
+from backend.app.api.assessments import router as assessment_router
+app.include_router(assessment_router)

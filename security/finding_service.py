@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+﻿from sqlalchemy.orm import Session
 
 from database.models import SecurityFinding
 
@@ -11,25 +11,41 @@ def store_security_findings(
 
     stored_findings = []
 
-    for finding in findings:
+    try:
+        for finding in findings:
+            query = db.query(SecurityFinding).filter(
+                SecurityFinding.integration_id == integration_id,
+                SecurityFinding.finding_type == finding["finding_type"],
+                SecurityFinding.evidence == finding.get("evidence"),
+            )
 
-        security_finding = SecurityFinding(
-            integration_id=integration_id,
-            finding_type=finding["finding_type"],
-            severity=finding["severity"],
-            component="smart_contract",
-            location=finding.get("location"),
-            description=finding.get("description"),
-            evidence=finding.get("evidence"),
-            source="security_analyzer",
-        )
+            existing = query.first()
 
-        db.add(security_finding)
-        stored_findings.append(security_finding)
+            if existing is not None:
+                stored_findings.append(existing)
+                continue
 
-    db.commit()
+            security_finding = SecurityFinding(
+                integration_id=integration_id,
+                finding_type=finding["finding_type"],
+                severity=finding["severity"],
+                component=finding.get("component", "smart_contract"),
+                location=finding.get("location"),
+                description=finding.get("description"),
+                evidence=finding.get("evidence"),
+                source=finding.get("source", "security_analyzer"),
+            )
 
-    for finding in stored_findings:
-        db.refresh(finding)
+            db.add(security_finding)
+            stored_findings.append(security_finding)
 
-    return stored_findings
+        db.commit()
+
+        for finding in stored_findings:
+            db.refresh(finding)
+
+        return stored_findings
+
+    except Exception:
+        db.rollback()
+        raise

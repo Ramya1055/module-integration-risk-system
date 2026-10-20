@@ -265,6 +265,7 @@ def get_integration_report(
 def record_integration_blockchain_transaction(
     integration_id: str,
     transaction_hash: str,
+    host_address: str | None = None,
     db: Session = Depends(get_db),
 ):
     try:
@@ -272,6 +273,7 @@ def record_integration_blockchain_transaction(
             db=db,
             integration_id=integration_id,
             transaction_hash=transaction_hash,
+	    host_address=host_address,
         )
 
         return {

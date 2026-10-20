@@ -8,6 +8,7 @@ from database.models import (
     PerformanceAnalysis,
     SecurityFinding,
     BlockchainTransaction,
+    OnchainObservation,
 )
 
 
@@ -87,7 +88,15 @@ def generate_integration_report(
         .order_by(BlockchainTransaction.id)
         .all()
     )
-
+    onchain_observations = (
+        db.query(OnchainObservation)
+        .filter(
+            OnchainObservation.integration_id
+            == integration_id
+        )
+        .order_by(OnchainObservation.id)
+        .all()
+    )
     return {
         "integration": {
             "integration_id": integration.integration_id,
@@ -195,6 +204,24 @@ def generate_integration_report(
             for transaction in transactions
         ],
 
+        "onchain_observations": [
+            {
+                "transaction_hash": observation.transaction_hash,
+                "block_number": observation.block_number,
+                "host_address": observation.host_address,
+                "module_address": observation.module_address,
+                "call_id": observation.call_id,
+                "success": observation.success,
+                "gas_used": observation.gas_used,
+                "max_depth": observation.max_depth,
+                "balance_delta": observation.balance_delta,
+                "violations": observation.violations,
+                "return_data": observation.return_data,
+                "created_at": observation.created_at,
+            }
+            for observation in onchain_observations
+        ],
+
         "events": [
             {
                 "event_type": event.event_type,
@@ -207,4 +234,3 @@ def generate_integration_report(
             for event in events
         ],
     }
-
