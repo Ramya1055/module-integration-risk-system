@@ -28,6 +28,7 @@ def get_latest_block() -> dict:
     }
 
 
+
 def get_transaction_details(
     transaction_hash: str,
 ) -> dict:
@@ -45,8 +46,9 @@ def get_transaction_details(
         "transaction_hash": transaction_hash,
         "from": transaction["from"],
         "to": transaction["to"],
-        "block_number": transaction["blockNumber"],
+        "block_number": receipt["blockNumber"],
         "gas": transaction["gas"],
         "gas_used": receipt["gasUsed"],
         "status": receipt["status"],
+        "receipt": receipt,
     }

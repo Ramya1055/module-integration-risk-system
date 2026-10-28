@@ -26,7 +26,9 @@ from security.analyzer import (
 from security.finding_service import (
     store_security_findings,
 )
-
+from blockchain.collect_onchain_events import (
+    collect_receipt_events,
+)
 
 
 from pathlib import Path
@@ -111,44 +113,84 @@ def start_integration(
 
     integration.status = "INITIALIZING"
     integration.start_time = datetime.utcnow()
-
     db.commit()
 
-    collect_baseline(
-        db=db,
-        integration_id=integration_id,
-    )
+    try:
+        collect_baseline(
+            db=db,
+            integration_id=integration_id,
+        )
 
-    module_file = get_module_file_path(
-        integration.proposed_module
-    )
+        module_file = get_module_file_path(
+            integration.proposed_module
+        )
 
-    create_module_profile(
-        db=db,
-        integration_id=integration_id,
-        file_path=module_file,
-    )
+        create_module_profile(
+            db=db,
+            integration_id=integration_id,
+            file_path=module_file,
+        )
 
-    integration.status = "BASELINE_CAPTURED"
+        integration.status = "BASELINE_CAPTURED"
+        db.commit()
 
-    db.commit()
-    record_event(
-        db=db,
-        integration_id=integration_id,
-        event_type="BASELINE_CAPTURED",
-        component="baseline",
-        severity="INFO",
-        source="integration_service",
-        description=(
-            "Baseline metrics and proposed module "
-            "profile were captured successfully."
-        ),
-    )
+        record_event(
+            db=db,
+            integration_id=integration_id,
+            event_type="BASELINE_CAPTURED",
+            component="baseline",
+            severity="INFO",
+            source="integration_service",
+            description=(
+                "Baseline metrics and proposed module "
+                "profile were captured successfully."
+            ),
+        )
 
-    db.refresh(integration)
+        db.refresh(integration)
+        return integration
 
-    return integration
+    except Exception as exc:
+        # Preserve already committed evidence, but discard
+        # any pending database work from the failed operation.
+        db.rollback()
 
+        try:
+            failed_integration = (
+                db.query(Integration)
+                .filter(
+                    Integration.integration_id == integration_id
+                )
+                .first()
+            )
+
+            if failed_integration is not None:
+                failed_integration.status = "FAILED"
+                failed_integration.end_time = datetime.utcnow()
+                db.commit()
+
+                try:
+                    record_event(
+                        db=db,
+                        integration_id=integration_id,
+                        event_type="STARTUP_FAILED",
+                        component="startup",
+                        severity="ERROR",
+                        source="integration_service",
+                        description=(
+                            f"{type(exc).__name__}: {exc}"
+                        )[:500],
+                    )
+                except Exception:
+                    # Failure-event recording must not hide
+                    # the original startup exception.
+                    db.rollback()
+
+        except Exception:
+            db.rollback()
+
+        # Keep the original exception available to the caller.
+        raise
 
 def begin_integration_monitoring(
     db: Session,
@@ -431,8 +473,9 @@ def analyze_integration_security(
         severity="INFO",
         source="integration_service",
         description=(
-            f"Security analysis completed. "
-            f"{len(stored_findings)} finding(s) recorded."
+            f"Static security analysis completed. "
+            f"{len(stored_findings)} static finding(s) recorded. "
+            "On-chain observations are recorded separately."
         ),
     )
 
@@ -509,6 +552,7 @@ def record_blockchain_transaction(
     db: Session,
     integration_id: str,
     transaction_hash: str,
+    host_address: str | None = None,
 ):
     transaction_data = get_transaction_details(
         transaction_hash
@@ -519,5 +563,15 @@ def record_blockchain_transaction(
         integration_id=integration_id,
         transaction_data=transaction_data,
     )
+
+    receipt = transaction_data["receipt"]
+
+    if host_address:
+        collect_receipt_events(
+            db=db,
+            integration_id=integration_id,
+            host_address=host_address,
+            receipt=receipt,
+        )
 
     return transaction

@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from database.db import SessionLocal
+from database.models import Integration, SecurityFinding
 from backend.app.schemas.integration import (
     IntegrationCreate,
     IntegrationResponse,
@@ -25,7 +26,9 @@ from backend.app.services.integration_service import (
     finalize_integration,
     record_blockchain_transaction,
 )
-
+from blockchain.collect_onchain_events import collect_receipt_events
+from blockchain.connection import get_web3
+from database.models import Integration
 
 router = APIRouter(
     prefix="/integrations",
@@ -40,6 +43,35 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+@router.get("")
+def list_integrations(db: Session = Depends(get_db)):
+    rows = (
+        db.query(Integration)
+        .order_by(Integration.id.desc())
+        .all()
+    )
+    results = []
+    for item in rows:
+        findings_count = (
+            db.query(SecurityFinding)
+            .filter(
+                SecurityFinding.integration_id == item.integration_id
+            )
+            .count()
+        )
+        results.append({
+            "integration_id": item.integration_id,
+            "existing_module": item.existing_module,
+            "proposed_module": item.proposed_module,
+            "contract_address": item.contract_address,
+            "network": item.network,
+            "status": item.status,
+            "created_at": item.created_at,
+            "findings_count": findings_count,
+        })
+    return results
 
 
 @router.post(
@@ -265,6 +297,7 @@ def get_integration_report(
 def record_integration_blockchain_transaction(
     integration_id: str,
     transaction_hash: str,
+    host_address: str | None = None,
     db: Session = Depends(get_db),
 ):
     try:
@@ -272,6 +305,7 @@ def record_integration_blockchain_transaction(
             db=db,
             integration_id=integration_id,
             transaction_hash=transaction_hash,
+	    host_address=host_address,
         )
 
         return {
@@ -287,4 +321,58 @@ def record_integration_blockchain_transaction(
         raise HTTPException(
             status_code=400,
             detail=str(exc),
+        )
+
+
+
+@router.post("/{integration_id}/onchain/collect")
+def collect_onchain_evidence_endpoint(
+    integration_id: str,
+    payload: dict,
+    db: Session = Depends(get_db),
+):
+    integration = (
+        db.query(Integration)
+        .filter(Integration.integration_id == integration_id)
+        .first()
+    )
+
+    if integration is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Integration not found",
+        )
+
+    tx_hash = payload.get("transaction_hash")
+    host_address = payload.get("host_address")
+
+    if not tx_hash or not host_address:
+        raise HTTPException(
+            status_code=400,
+            detail="transaction_hash and host_address are required",
+        )
+
+    try:
+        web3 = get_web3()
+        receipt = web3.eth.get_transaction_receipt(tx_hash)
+
+        observations = collect_receipt_events(
+            db=db,
+            integration_id=integration_id,
+            host_address=host_address,
+            receipt=receipt,
+        )
+
+        return {
+            "integration_id": integration_id,
+            "transaction_hash": receipt["transactionHash"].hex(),
+            "onchain_status": "COLLECTED",
+            "observations_saved": len(observations),
+        }
+
+    except Exception as exc:
+        db.rollback()
+        raise HTTPException(
+            status_code=400,
+            detail=f"On-chain evidence collection failed: {exc}",
         )

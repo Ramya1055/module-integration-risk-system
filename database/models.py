@@ -398,3 +398,170 @@ class BlockchainTransaction(Base):
         default=datetime.utcnow,
         nullable=False,
     )
+
+
+
+class OnchainObservation(Base):
+    __tablename__ = "onchain_observations"
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+    )
+
+    integration_id: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        index=True,
+    )
+
+    transaction_hash: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+    )
+
+    block_number: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+
+    host_address: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+    )
+
+    module_address: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+    )
+
+    call_id: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+    )
+
+    success: Mapped[bool] = mapped_column(
+        nullable=False,
+    )
+
+    gas_used: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+    )
+
+    max_depth: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+    )
+
+    balance_delta: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False,
+    )
+
+    violations: Mapped[str] = mapped_column(
+        String(1000),
+        default="",
+        nullable=False,
+    )
+
+    return_data: Mapped[str | None] = mapped_column(
+        String(2000),
+        nullable=True,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.utcnow,
+        nullable=False,
+    )
+
+class Assessment(Base):
+    __tablename__ = "assessments"
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+    )
+
+    assessment_id: Mapped[str] = mapped_column(
+        String(50),
+        unique=True,
+        nullable=False,
+    )
+
+    integration_id: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        index=True,
+    )
+
+    assessment_status: Mapped[str] = mapped_column(
+        String(50),
+        default="PENDING_REVIEW",
+        nullable=False,
+    )
+
+    risk_level: Mapped[str] = mapped_column(
+        String(50),
+        default="UNASSESSED",
+        nullable=False,
+    )
+    reviewed_risk_level: Mapped[str | None] = mapped_column(
+        String(50),
+        nullable=True,
+    )
+
+    findings_count: Mapped[int] = mapped_column(
+        Integer,
+        default=0,
+        nullable=False,
+    )
+
+    evidence_summary: Mapped[str | None] = mapped_column(
+        String(2000),
+        nullable=True,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.utcnow,
+        nullable=False,
+    )
+
+
+    reviewer_decision: Mapped[str] = mapped_column(
+        String(30),
+        default="PENDING",
+        nullable=False,
+    )
+    reviewer_notes: Mapped[str | None] = mapped_column(
+        String(2000),
+        nullable=True,
+    )
+    reviewed_at: Mapped[datetime | None] = mapped_column(
+        DateTime,
+        nullable=True,
+    )
+    blockchain_status: Mapped[str | None] = mapped_column(
+        String(30),
+        nullable=True,
+    )
+    blockchain_registry_address: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+    )
+    blockchain_transaction_hash: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+    )
+    blockchain_report_hash: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+    )
+    blockchain_error: Mapped[str | None] = mapped_column(
+        String(2000),
+        nullable=True,
+    )

@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Module Integration Risk & Observability</title>
+<style>
+:root{--bg:#f4f7fb;--panel:#fff;--ink:#172338;--muted:#64748b;--line:#e2e8f0;--nav:#132238;--blue:#2855d9;--blue-soft:#edf2ff;--green:#13795b;--green-soft:#e8f7f0;--amber:#a65d00;--amber-soft:#fff4dd;--red:#b42318;--red-soft:#fff0ee;--shadow:0 8px 24px rgba(19,34,56,.06)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:9px;padding:10px 14px;font-weight:650}button:disabled{opacity:.5;cursor:not-allowed}.primary{background:var(--blue);color:white}.secondary{background:white;color:var(--ink);border:1px solid var(--line)}.shell{display:grid;grid-template-columns:235px minmax(0,1fr);min-height:100vh}.sidebar{background:var(--nav);color:#e8eef9;padding:22px 15px;display:flex;flex-direction:column;gap:22px}.brand{display:flex;align-items:center;gap:11px;padding:0 8px}.brand-mark{width:39px;height:39px;border-radius:12px;background:#365ee8;display:grid;place-items:center;font-weight:800}.brand small{display:block;color:#aab9d0;font-size:11px}.nav-label{font-size:10px;text-transform:uppercase;letter-spacing:1.4px;color:#8da0bc;padding:0 11px;margin-bottom:5px}.nav{display:grid;gap:5px}.nav button{display:flex;gap:10px;align-items:center;background:transparent;color:#c9d5e7;text-align:left;font-weight:550;padding:11px 12px}.nav button.active,.nav button:hover{background:#243957;color:white}.side-note{margin-top:auto;border:1px solid #31445e;border-radius:12px;padding:13px;color:#b8c7dc;font-size:12px}.side-note strong{color:white;display:block}.main{min-width:0}.topbar{min-height:76px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:13px 25px;gap:14px}.eyebrow{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;font-weight:750}.topbar h1{font-size:19px;margin:2px 0 0}.api-status{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:99px;padding:8px 11px;color:var(--muted);font-size:12px;white-space:nowrap}.dot{width:8px;height:8px;background:#94a3b8;border-radius:50%;display:inline-block}.dot.ok{background:#16a36a}.dot.bad{background:#e04444}.top-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.top-controls select{max-width:250px;border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px;color:var(--ink)}.content{padding:25px;max-width:1500px;margin:auto}.page{display:none}.page.active{display:block}.page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:20px}.page-head h2{font-size:23px;margin:0 0 5px}.page-head p{margin:0;color:var(--muted);max-width:780px}.actions{display:flex;gap:8px;flex-wrap:wrap}.grid{display:grid;gap:15px}.grid.kpis{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:17px}.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}.card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:18px;box-shadow:var(--shadow);min-width:0}.card h3{font-size:14px;margin:0 0 12px}.card-sub{font-size:12px;color:var(--muted);margin-top:-7px;margin-bottom:14px}.kpi{padding:16px}.kpi .label{font-size:12px;color:var(--muted);font-weight:600}.kpi .value{font-size:27px;font-weight:780;margin:4px 0}.kpi .hint,.tiny,.footer-note{font-size:11px;color:var(--muted)}.section-title{font-size:16px;margin:23px 0 11px}.muted{color:var(--muted)}.pill{display:inline-flex;align-items:center;padding:4px 9px;border-radius:99px;font-size:11px;font-weight:750;white-space:nowrap;background:#eef2f7;color:#475569}.pill.high,.pill.critical,.pill.failed,.pill.reject,.pill.rejected{background:var(--red-soft);color:var(--red)}.pill.medium,.pill.pending,.pill.warning{background:var(--amber-soft);color:var(--amber)}.pill.low,.pill.completed,.pill.finalized,.pill.approve,.pill.approved,.pill.success{background:var(--green-soft);color:var(--green)}.pill.info{background:var(--blue-soft);color:var(--blue)}.module-pair{display:grid;grid-template-columns:1fr 34px 1fr;align-items:stretch;gap:10px}.module-box{border:1px solid var(--line);border-radius:12px;padding:15px;background:#fbfcff;min-width:0}.module-box .tag{font-size:10px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.9px}.module-box h4{font-size:16px;margin:7px 0}.module-box p{margin:0;color:var(--muted);font-size:12px;overflow-wrap:anywhere}.plus{align-self:center;justify-self:center;width:29px;height:29px;border-radius:50%;background:var(--blue-soft);color:var(--blue);display:grid;place-items:center;font-size:20px;font-weight:700}.notice{padding:12px 14px;border-radius:10px;background:var(--blue-soft);color:#2448a5;font-size:12px;border:1px solid #dbe5ff}.notice p{margin:5px 0 0}.notice.warn{background:var(--amber-soft);border-color:#ffe5ae;color:#855000}.notice.danger-note{background:var(--red-soft);border-color:#ffd4ce;color:#9b2119}.notice.good{background:var(--green-soft);border-color:#c9efdc;color:#116548}.steps{display:grid}.step{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:11px;align-items:start;padding:12px 0;border-bottom:1px solid var(--line)}.step:last-child{border-bottom:0}.step-icon{width:29px;height:29px;border-radius:9px;background:#eef2f7;display:grid;place-items:center;color:#64748b;font-weight:800}.step-icon.done{background:var(--green-soft);color:var(--green)}.step-icon.warn{background:var(--amber-soft);color:var(--amber)}.step strong{display:block;font-size:13px}.step p{margin:3px 0 0;color:var(--muted);font-size:12px}.step-time{font-size:10px;color:var(--muted);text-align:right;max-width:170px}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;color:var(--muted);font-weight:700;background:#f8fafc}th,td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}tr:last-child td{border-bottom:0}td{overflow-wrap:anywhere}.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:11px;overflow-wrap:anywhere}.finding{border:1px solid var(--line);border-radius:11px;padding:14px;margin-bottom:11px}.finding:last-child{margin-bottom:0}.finding-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.finding h4{margin:0 0 5px;font-size:13px}.finding p{margin:7px 0;color:inherit;font-size:12px}.field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:12px;font-weight:700;color:#344256}.field input,.field select,.field textarea{width:100%;border:1px solid #cfd8e5;background:white;border-radius:9px;padding:10px;color:var(--ink)}.field textarea{min-height:90px;resize:vertical}.form-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}.empty{padding:23px;text-align:center;border:1px dashed #cbd5e1;border-radius:12px;color:var(--muted);font-size:13px}.score-panel{display:flex;align-items:center;gap:18px;padding:16px;border-radius:12px;background:#f8fafc;border:1px solid var(--line)}.score-word{font-size:23px;font-weight:800}.score-panel p{margin:3px 0 0;color:var(--muted);font-size:12px}.toast{position:fixed;right:22px;bottom:22px;background:#15253b;color:white;padding:13px 17px;border-radius:10px;box-shadow:var(--shadow);max-width:min(440px,calc(100vw - 40px));z-index:50;display:none}.toast.show{display:block}.small{padding:7px 10px;font-size:12px}.hash{max-width:270px;display:inline-block}.hidden{display:none!important}
+@media(max-width:1050px){.shell{grid-template-columns:200px minmax(0,1fr)}.content{padding:20px}.topbar{padding:13px 18px}.grid.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.grid.three{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:740px){.shell{display:block}.sidebar{padding:11px;gap:12px}.nav-label,.side-note{display:none}.nav{display:flex;overflow:auto}.nav button{white-space:nowrap;padding:9px;font-size:12px}.topbar{align-items:flex-start;flex-direction:column}.content{padding:15px 12px 30px}.page-head{display:block}.page-head .actions{margin-top:12px}.grid.two,.grid.three,.field-grid{grid-template-columns:1fr}.module-pair{grid-template-columns:1fr}.plus{transform:rotate(90deg)}.step{grid-template-columns:29px minmax(0,1fr)}.step-time{grid-column:2;text-align:left;max-width:none}.card{padding:14px}}
+@media print{.sidebar,.topbar,.actions,.form-actions,.toast{display:none!important}.shell{display:block}.content{padding:0;max-width:none}.page{display:none!important}#page-report{display:block!important}.card{box-shadow:none;break-inside:avoid}.finding{break-inside:avoid}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="sidebar">
+  <div class="brand"><div class="brand-mark">MI</div><div><strong>Integration Risk</strong><small>Observability workspace</small></div></div>
+  <div><div class="nav-label">Workspace</div><nav class="nav" id="nav">
+    <button class="active" data-page="overview">◫ Overview</button><button data-page="create">＋ New integration</button><button data-page="process">⇢ Process timeline</button><button data-page="machine">▤ Machine report</button><button data-page="ml">✳ ML report</button><button data-page="decision">⬡ Risk & review</button><button data-page="report">▧ Complete report</button>
+  </nav></div>
+  <div class="side-note"><strong>Evidence first</strong>Stage 1 observes and records behaviour. The risk assessment is preliminary and rule-based unless a trained ML model is explicitly connected.</div>
+</aside>
+<main class="main">
+<header class="topbar">
+  <div><div class="eyebrow">Module integration observability</div><h1 id="top-title">Integration overview</h1></div>
+  <div class="top-controls"><select id="integration-select" aria-label="Choose integration"><option value="">Select integration…</option></select><button class="secondary small" id="refresh-btn">↻ Refresh</button><div class="api-status"><span class="dot" id="api-dot"></span><span id="api-label">Checking API…</span></div></div>
+</header>
+<div class="content">
+<section class="page active" id="page-overview">
+  <div class="page-head"><div><h2>Integration overview</h2><p>See which modules are being combined, what was measured, which security findings were recorded, and whether review is still required.</p></div><div class="actions"><button class="primary" data-go="create">＋ Start an integration</button><button class="secondary" data-go="report">Open full report</button></div></div>
+  <div id="overview-content"><div class="empty">Connect to the API and choose an integration.</div></div>
+</section>
+<section class="page" id="page-create">
+  <div class="page-head"><div><h2>Start a new integration</h2><p>Create an integration record using the existing backend API.</p></div></div>
+  <div class="grid two">
+    <div class="card"><h3>1. Define the modules</h3><p class="card-sub">Enter the actual names from your project.</p>
+      <form id="create-form"><div class="field-grid">
+        <div class="field"><label for="existing">Existing module</label><input id="existing" name="existing_module" required placeholder="e.g. SafeModule"></div>
+        <div class="field"><label for="proposed">Proposed module</label><input id="proposed" name="proposed_module" required placeholder="e.g. SecurityTestModule"></div>
+        <div class="field"><label for="network">Network</label><select id="network" name="network"><option value="local">Local development chain</option><option value="sepolia">Sepolia testnet</option><option value="mainnet">Ethereum mainnet</option></select></div>
+        <div class="field"><label for="contract-address">Contract address (optional)</label><input id="contract-address" name="contract_address" placeholder="0x…"></div>
+      </div><div class="form-actions"><button class="primary" type="submit">Create integration record</button></div></form>
+    </div>
+    <div class="card"><h3>What the workflow does</h3><div class="steps">
+      <div class="step"><span class="step-icon">1</span><div><strong>Capture baseline</strong><p>Record the proposed module profile and starting machine metrics.</p></div></div>
+      <div class="step"><span class="step-icon">2</span><div><strong>Monitor</strong><p>Collect runtime measurements and lifecycle events.</p></div></div>
+      <div class="step"><span class="step-icon">3</span><div><strong>Analyze evidence</strong><p>Run available security/performance checks and record on-chain observations where configured.</p></div></div>
+      <div class="step"><span class="step-icon">4</span><div><strong>Review</strong><p>Inspect the findings and record an explicit human decision.</p></div></div>
+    </div><div class="notice" style="margin-top:12px">Creating a record does not itself execute every lifecycle action or prove that a module is safe.</div></div>
+  </div>
+</section>
+<section class="page" id="page-process">
+  <div class="page-head"><div><h2>Process timeline</h2><p>Recorded lifecycle events and optional API actions for the selected integration.</p></div><div class="actions"><button class="secondary" id="reload-timeline">Reload timeline</button></div></div>
+  <div class="grid two"><div class="card"><h3>Observed lifecycle</h3><div id="timeline-content" class="empty">Choose an integration.</div></div>
+  <div class="card"><h3>Lifecycle actions</h3><p class="card-sub">Only use actions that are valid for the integration's current backend state.</p><div class="grid">
+    <button class="secondary action-api" data-action="start">1 · Start integration</button><button class="secondary action-api" data-action="begin-monitoring">2 · Begin runtime monitoring</button><button class="secondary action-api" data-action="runtime-samples">3 · Collect runtime samples</button><button class="secondary action-api" data-action="complete">4 · Complete integration</button><button class="secondary action-api" data-action="analyze">5 · Run performance analysis</button><button class="secondary action-api" data-action="security-analysis">6 · Run security analysis</button><button class="primary action-api" data-action="finalize">7 · Finalize and prepare report</button>
+  </div><p class="footer-note">If the backend rejects an action, the API error will be displayed. Do not repeat completed actions without checking status.</p></div></div>
+</section>
+<section class="page" id="page-machine">
+  <div class="page-head"><div><h2>Machine-generated technical report</h2><p>Recorded module profile, host performance measurements, security findings, transactions and on-chain observations. This is evidence, not an ML prediction.</p></div><div class="actions"><button class="secondary" data-go="report">View complete report</button></div></div><div id="machine-content"><div class="empty">Choose an integration.</div></div>
+</section>
+
+<section class="page" id="page-ml">
+  <div class="page-head">
+    <div>
+      <h2>Machine learning report</h2>
+      <p>
+        ML risk prediction from the trained model, shown separately
+        from the technical report, rule-based assessment, and human decision.
+      </p>
+    </div>
+  </div>
+
+  <div id="ml-live-content">
+    <div class="empty">Choose an integration.</div>
+  </div>
+</section>
+
+<section class="page" id="page-decision">
+  <div class="page-head"><div><h2>Risk assessment & human review</h2><p>Review the preliminary assessment and its supporting evidence. Approval is a human decision, not an automatic conclusion.</p></div></div><div id="decision-content"><div class="empty">Choose an integration.</div></div>
+</section>
+<section class="page" id="page-report">
+  <div class="page-head"><div><h2>Complete integration report</h2><p>Consolidated assessment, module profile, machine metrics, findings, transactions, on-chain observations, events and review record.</p></div><div class="actions"><button class="secondary" id="download-json">Download report JSON</button><button class="primary" id="print-report">Print / Save PDF</button></div></div><div id="report-content"><div class="empty">Choose an integration.</div></div>
+</section>
+</div></main></div><div class="toast" id="toast" role="status"></div>
+<script>
+(() => {
+  const API = (localStorage.getItem('moduleRiskApi') || 'http://127.0.0.1:8000').replace(/\/+$/,'');
+  let integrations = [], currentId = '', reportData = null;
+  const assessmentCreateAttempts = new Set();
+  const $ = id => document.getElementById(id);
+  const esc = value => String(value ?? '—').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const pretty = value => String(value ?? 'UNKNOWN').replaceAll('_',' ').toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());
+  const fmt = value => {if(!value)return '—';const d=new Date(value);return Number.isNaN(d.getTime())?String(value):d.toLocaleString();};
+  const num = (v,d=1) => v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v))?Number(v).toFixed(d):'—';
+  const pill = value => {const s=String(value??'unknown').toLowerCase();let c='info';if(['high','critical','failed','reject','rejected'].some(x=>s.includes(x)))c='high';else if(['medium','pending','warning','review'].some(x=>s.includes(x)))c='pending';else if(['low','completed','finalized','approve','approved','success'].some(x=>s.includes(x)))c='low';return `<span class="pill ${c}">${esc(pretty(value))}</span>`;};
+  const empty = text => `<div class="empty">${esc(text)}</div>`;
+  const shortHash = s => s ? `${String(s).slice(0,12)}…${String(s).slice(-8)}` : '—';
+  function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),4200);}
+  async function api(path, options={}) {
+    const headers={'Accept':'application/json',...(options.body?{'Content-Type':'application/json'}:{}),...(options.headers||{})};
+    let res;
+    try {res=await fetch(API+path,{...options,headers});}
+    catch(e){throw new Error(`Cannot reach ${API}. Ensure FastAPI is running and CORS allows this frontend origin.`);}
+    const text=await res.text();let data={};
+    try{data=text?JSON.parse(text):{};}catch{data={detail:text};}
+    if(!res.ok)throw new Error(typeof data.detail==='string'?data.detail:(data.message||`${res.status} ${res.statusText}`));
+    return data;
+  }
+  function setApi(ok,label){$('api-dot').className='dot '+(ok?'ok':'bad');$('api-label').textContent=label;}
+  function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===`page-${name}`));document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===name));const labels={overview:'Integration overview',create:'New integration',process:'Process timeline',machine:'Machine report',ml:'ML report',decision:'Risk & review',report:'Complete report'};$('top-title').textContent=labels[name]||'Workspace';}
+  document.querySelectorAll('#nav button').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
+  document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.go)));
+  function bindGoButtons(){document.querySelectorAll('[data-go]').forEach(b=>{if(!b.dataset.bound){b.dataset.bound='1';b.addEventListener('click',()=>showPage(b.dataset.go));}});}
+  async function health(){try{await api('/health');setApi(true,'API connected');}catch(e){setApi(false,'API unavailable');}}
+  async function loadIntegrations(chooseId=''){
+    try{
+      const data=await api('/integrations');integrations=Array.isArray(data)?data:(data.integrations||data.items||[]);
+      const sel=$('integration-select'),old=chooseId||currentId||sel.value;
+      sel.innerHTML='<option value="">Select integration…</option>'+integrations.map(x=>{const id=x.integration_id||x.id;return `<option value="${esc(id)}">${esc(id)} · ${esc(x.existing_module||'Existing')} + ${esc(x.proposed_module||'Proposed')}</option>`;}).join('');
+      if(old&&integrations.some(x=>(x.integration_id||x.id)===old))sel.value=old;else if(integrations.length){const newest=[...integrations].sort((a,b)=>{const na=Number(String(a.integration_id||a.id||'').match(/(\d+)$/)?.[1]||0),nb=Number(String(b.integration_id||b.id||'').match(/(\d+)$/)?.[1]||0);return nb-na;})[0];sel.value=newest.integration_id||newest.id;}
+      currentId=sel.value||'';if(currentId)await loadReport();else renderNoSelection();setApi(true,'API connected');
+    }catch(e){setApi(false,'API unavailable');toast(e.message);renderNoSelection();}
+  }
+  function renderNoSelection(){['overview-content','timeline-content','machine-content','decision-content','report-content'].forEach(id=>$(id).innerHTML=empty('Choose an integration to view its evidence.'));}
+  $('integration-select').addEventListener('change',async e=>{currentId=e.target.value;await loadReport();});
+  $('refresh-btn').addEventListener('click',()=>loadIntegrations(currentId));
+  $('reload-timeline').addEventListener('click',()=>loadReport());
+
+  function moduleSummary(profiles=[]){
+    if(!profiles.length)return empty('No module profile was recorded.');
+    return `<div class="table-wrap"><table><thead><tr><th>Module</th><th>Source lines</th><th>Functions</th><th>State variables</th><th>External calls</th><th>Dependencies</th><th>Events / modifiers</th></tr></thead><tbody>${profiles.map(p=>`<tr><td><strong>${esc(p.module_name)}</strong><div class="tiny">${esc(p.source_file||'')}</div></td><td>${esc(p.source_lines)}</td><td>${esc(p.function_count)}</td><td>${esc(p.state_variable_count)}</td><td>${esc(p.external_call_count)}</td><td>${esc(p.dependency_count)}</td><td>${esc(p.event_count)} / ${esc(p.modifier_count)}</td></tr>`).join('')}</tbody></table></div>`;
+  }
+  function metricsTable(metrics=[]){
+    if(!metrics.length)return empty('No runtime metrics were recorded.');
+    return `<div class="table-wrap"><table><thead><tr><th>Phase</th><th>Timestamp</th><th>CPU %</th><th>Memory %</th><th>Errors</th></tr></thead><tbody>${metrics.map(m=>`<tr><td>${pill(m.phase)}</td><td>${esc(fmt(m.timestamp))}</td><td>${esc(num(m.cpu_percent))}%</td><td>${esc(num(m.memory_percent))}%</td><td>${esc(m.error_count??'—')}</td></tr>`).join('')}</tbody></table></div>`;
+  }
+  function findingsList(findings=[]){
+    if(!findings.length)return empty('No security findings were recorded. This does not, by itself, prove the module is safe.');
+    return findings.map(f=>{
+      const type=String(f.finding_type||f.event_type||'UNKNOWN').toUpperCase(),evidence=String(f.evidence||''),description=String(f.description||'');
+      const canary=type.includes('INVARIANT')||evidence.includes('STORAGE_CANARY_CHANGED')||description.toLowerCase().includes('storage-canary');
+      const delegate=type.includes('DELEGATECALL');
+      let title=pretty(type),meaning=description||'The system recorded a security observation.',impact='Review the recorded evidence before deciding whether integration is appropriate.',action='Inspect the evidence and document the review decision.';
+      if(canary){title='Storage invariant changed';meaning='ModuleHost detected a change to its storage-canary invariant during module execution.';impact='The executing module may have affected storage that ModuleHost expected to remain unchanged. This is a genuine recorded warning, but it does not by itself prove an exploitable vulnerability.';action='Inspect the transaction, executing module, delegatecall target if applicable, and storage layout. Establish why the canary changed before considering approval.';}
+      else if(delegate){title='delegatecall usage detected';meaning='The source analyzer detected delegatecall usage in the Solidity source.';impact='delegatecall executes another contract’s code in the caller’s storage context. An unsafe target or incompatible storage layout can cause unintended state changes. Its presence alone does not prove a vulnerability.';action='Inspect the target address, trust assumptions, access controls and storage layout. Verify whether the call is necessary and safely constrained.';}
+      return `<article class="finding"><div class="finding-top"><div><h4>${esc(title)}</h4><div class="tiny">${esc(f.component||'Component not specified')} · ${esc(f.source||'Source not specified')} · ${esc(f.location||'Location not specified')}</div></div>${pill(f.severity||'INFO')}</div>
+      <div class="notice warn" style="margin-top:12px"><strong>What was detected</strong><p>${esc(meaning)}</p></div>
+      <div style="margin-top:12px"><strong>Why it matters</strong><p>${esc(impact)}</p></div>
+      ${evidence?`<div class="notice" style="margin-top:10px"><strong>Recorded evidence</strong><p class="mono">${esc(evidence)}</p></div>`:''}
+      <div class="notice danger-note" style="margin-top:10px"><strong>Recommended action</strong><p>${esc(action)}</p></div>
+      <p class="tiny" style="margin-top:9px">Recorded: ${esc(fmt(f.created_at||f.timestamp))}</p></article>`;
+    }).join('');
+  }
+  function txTable(txs=[]){
+    if(!txs.length)return empty('No blockchain transactions were attached to this report.');
+    return `<div class="table-wrap"><table><thead><tr><th>Transaction</th><th>Block</th><th>Gas used / limit</th><th>Status</th><th>Created</th></tr></thead><tbody>${txs.map(t=>`<tr><td><span class="mono hash" title="${esc(t.transaction_hash)}">${esc(shortHash(t.transaction_hash))}</span> <button class="secondary small copy-hash" data-hash="${esc(t.transaction_hash)}">Copy</button><div class="tiny">To: ${esc(t.to_address||'—')}</div></td><td>${esc(t.block_number)}</td><td>${esc(t.gas_used)} / ${esc(t.gas_limit)}</td><td>${Number(t.status)===1?'<span class="pill low">Success</span>':pill('FAILED')}</td><td>${esc(fmt(t.created_at))}</td></tr>`).join('')}</tbody></table></div>`;
+  }
+  function onchainTable(obs=[]){
+    if(!obs.length)return empty('No on-chain call observations were recorded.');
+    return `<div class="table-wrap"><table><thead><tr><th>Call / block</th><th>Result</th><th>Gas</th><th>Depth</th><th>Violation</th><th>Transaction</th></tr></thead><tbody>${obs.map(o=>`<tr><td>${esc(o.call_id)} / ${esc(o.block_number)}</td><td>${o.success?'<span class="pill low">Call returned success</span>':'<span class="pill high">Call failed</span>'}</td><td>${esc(o.gas_used)}</td><td>${esc(o.max_depth)}</td><td>${o.violations?pill(o.violations):'<span class="muted">None recorded</span>'}</td><td class="mono">${esc(shortHash(o.transaction_hash))}</td></tr>`).join('')}</tbody></table></div>`;
+  }
+  function eventsTimeline(events=[]){
+    if(!events.length)return empty('No lifecycle events were returned.');
+    return `<div class="steps">${events.map(e=>{const warn=/VIOLATION|FAILED|ERROR/i.test((e.event_type||'')+' '+(e.description||''));return `<div class="step"><span class="step-icon ${warn?'warn':'done'}">${warn?'!':'✓'}</span><div><strong>${esc(pretty(e.event_type||'Event'))}</strong><p>${esc(e.description||'No event description recorded.')}</p><div class="tiny">${esc(e.component||'')} · ${esc(e.source||'')}</div></div><div class="step-time">${esc(fmt(e.timestamp||e.created_at))}</div></div>`;}).join('')}</div>`;
+  }
+  function mlPanel(a={}){
+    const m = a.ml_result || a.assessment?.ml_result || {};
+    const status = String(m.ml_status || "NOT_RUN").toUpperCase();
+    const prediction = m.ml_prediction;
+    const confidence = m.ml_confidence_percent;
+    const confidenceText=confidence!=null
+      ? `${esc(confidence)}%`
+      : (m.ml_confidence!=null ? `${(Number(m.ml_confidence)*100).toFixed(2)}%` : "Unavailable");
+    if(status==="NOT_RUN"||!prediction){
+      return `<div class="card"><h3>Machine-learning assessment</h3>
+        <div class="notice warn"><strong>${esc(pretty(status))}</strong>
+        <p>${esc(m.ml_warning||"No ML prediction is available for this report. Check model availability and the assessment API response.")}</p></div></div>`;
+    }
+    return `<div class="card"><h3>Machine-learning assessment</h3>
+      <div class="grid three">
+        <div><div class="tiny">ML-predicted risk</div><h2>${esc(pretty(prediction))}</h2></div>
+        <div><div class="tiny">Model confidence</div><h2>${esc(confidenceText)}</h2></div>
+        <div><div class="tiny">Model status</div><h3>${esc(pretty(status))}</h3></div>
+      </div>
+      <div class="notice warn" style="margin-top:12px"><strong>Research-model limitation</strong>
+      <p>${esc(m.ml_warning||"This model was trained on a small reviewed dataset. Its prediction is not proof of safety and does not make the human approval decision.")}</p></div>
+      <p class="tiny">This prediction is separate from the rule-based risk and the human review decision.</p>
+      </div>`;
+  }
+
+  function renderOverview(r){
+    const i=r.integration||{},a=r.assessment||{},p=r.performance_analysis||{},findings=r.security_findings||[];
+    const risk=a.reviewed_risk_level||a.preliminary_risk_level||a.risk_level||'NOT ASSESSED',decision=a.reviewer_decision||'PENDING';
+    const ready=String(decision).toUpperCase()==='APPROVE'&&String(a.reviewed_risk_level||'').toUpperCase()==='LOW';
+    $('overview-content').innerHTML=`
+    ${!['COMPLETED','FAILED','POST_ANALYSIS','FINALIZED'].includes(String(i.status||'').toUpperCase())?`<div class="notice warn"><strong>This integration is not complete yet (${esc(pretty(i.status||'UNKNOWN'))}).</strong><p>The current record does not yet contain a complete assessment. Use the Process timeline to run the remaining lifecycle steps, or select a completed integration. Historical transactions and observations are not proof that this integration completed.</p></div>`:''}
+    <div class="grid kpis">
+      <div class="card kpi"><div class="label">Preliminary risk</div><div class="value">${esc(pretty(a.preliminary_risk_level||a.risk_level||'NOT ASSESSED'))}</div><div class="hint">Rule-based assessment, not ML</div></div>
+      <div class="card kpi"><div class="label">Security findings</div><div class="value">${findings.length}</div><div class="hint">Recorded evidence items</div></div>
+      <div class="card kpi"><div class="label">Runtime samples</div><div class="value">${esc(p.runtime_sample_count??(r.metrics||[]).length)}</div><div class="hint">Host measurements recorded</div></div>
+      <div class="card kpi"><div class="label">Blockchain transactions</div><div class="value">${(r.blockchain_transactions||[]).length}</div><div class="hint">${(r.onchain_observations||[]).length} on-chain call observations</div></div>
+    </div>
+    ${mlPanel(a)}
+    <div class="grid two">
+      <div class="card"><h3>What is being integrated?</h3><p class="card-sub">Existing module + proposed module</p><div class="module-pair">
+        <div class="module-box"><div class="tag">Existing module</div><h4>${esc(i.existing_module||'Not specified')}</h4><p>Module currently identified as existing. Its specific purpose must be verified from its source or project documentation.</p></div><div class="plus">+</div>
+        <div class="module-box"><div class="tag">Proposed module</div><h4>${esc(i.proposed_module||'Not specified')}</h4><p>Module being evaluated for integration. The report includes the recorded source profile and observed behaviour.</p></div>
+      </div><p class="tiny" style="margin-top:12px">ID: <strong>${esc(i.integration_id||currentId)}</strong> · Network: ${esc(i.network||'—')} · Status: ${pill(i.status)}</p></div>
+      <div class="card"><h3>Risk & recommendation</h3><div class="score-panel"><div style="flex:1"><div class="eyebrow">Current assessment</div><div class="score-word">${esc(pretty(risk))}</div><p>${esc(a.interpretation||'Preliminary rule-based assessment; not an ML prediction or proof of exploitability.')}</p></div>${pill(decision)}</div>
+      <div class="notice ${ready?'good':'danger-note'}" style="margin-top:13px"><strong>${ready?'Human review recorded: APPROVED':'Integration not cleared for approval'}</strong><p>${ready?'The reviewer approved this integration at the recorded risk level. This is not a guarantee of safety.':`Current risk: ${pretty(risk)}. Human decision: ${pretty(decision)}. ${!a.assessment_id?'No assessment record is attached yet; refresh or complete the integration lifecycle before reviewing.':'Review the recorded findings and evidence before deciding whether to approve.'}`}</p></div>
+      <p class="tiny" style="margin-top:10px">Assessment: ${esc(a.assessment_id||'Not created')} · ${esc(pretty(a.assessment_status||'UNKNOWN'))}</p><button class="primary" style="margin-top:10px" data-go="decision">Review risk and evidence →</button></div>
+    </div>
+    <h3 class="section-title">How the system assesses an integration</h3><div class="grid three"><div class="card"><h3>01 · Observe</h3><p class="muted">Capture module profile, baseline and runtime measurements.</p></div><div class="card"><h3>02 · Analyze</h3><p class="muted">Inspect recorded security findings, performance changes and on-chain events where configured.</p></div><div class="card"><h3>03 · Review</h3><p class="muted">Use the evidence for human review. The trained ML prediction and confidence are displayed separately from rule-based assessment and human review.</p></div></div>
+    <h3 class="section-title">Important security findings</h3>${findingsList(findings.slice(0,3))}
+    <div class="actions" style="margin-top:15px"><button class="secondary" data-go="machine">Machine report</button><button class="secondary" data-go="process">Process timeline</button><button class="secondary" data-go="report">Complete report</button></div>`;
+    bindGoButtons();
+  }
+  function reportScopedEvidence(r){
+    const txs=r.blockchain_transactions||[], hashes=new Set(txs.map(t=>String(t.transaction_hash||'').toLowerCase()).filter(Boolean));
+    const observations=(r.onchain_observations||[]).filter(o=>hashes.has(String(o.transaction_hash||'').toLowerCase()));
+    const events=(r.events||[]).filter(e=>{const d=String(e.description||'').toLowerCase();for(const h of hashes)if(h&&d.includes(h))return true;return false;});
+    return {...r,onchain_observations:observations,events};
+  }
+  function renderMachine(r){
+    r=reportScopedEvidence(r);
+    const p=r.performance_analysis||{},risk=(r.assessment||{}).reviewed_risk_level||(r.assessment||{}).preliminary_risk_level||'NOT ASSESSED';
+    $('machine-content').innerHTML=`
+    <div class="grid kpis"><div class="card kpi"><div class="label">Baseline CPU</div><div class="value">${esc(num(p.baseline_cpu))}%</div><div class="hint">Baseline measurement</div></div><div class="card kpi"><div class="label">Average runtime CPU</div><div class="value">${esc(num(p.average_runtime_cpu))}%</div><div class="hint">Change: ${esc(num(p.cpu_change))} percentage points</div></div><div class="card kpi"><div class="label">Average runtime memory</div><div class="value">${esc(num(p.average_runtime_memory))}%</div><div class="hint">Change: ${esc(num(p.memory_change))} percentage points</div></div><div class="card kpi"><div class="label">Runtime errors</div><div class="value">${esc(p.total_runtime_errors??'—')}</div><div class="hint">Reported error count</div></div></div>
+    <div class="notice">CPU and memory describe the monitored host environment, not direct proof of contract safety. Interpret changes in the context of the test workload.</div>
+    <h3 class="section-title">Proposed module profile</h3><div class="card">${moduleSummary(r.module_profiles||[])}</div>
+    <h3 class="section-title">Runtime measurements</h3><div class="card">${metricsTable(r.metrics||[])}</div>
+    <h3 class="section-title">Security findings (${(r.security_findings||[]).length})</h3><div class="card">${findingsList(r.security_findings||[])}</div>
+    <h3 class="section-title">Blockchain transactions (${(r.blockchain_transactions||[]).length})</h3><div class="card">${txTable(r.blockchain_transactions||[])}</div>
+    <h3 class="section-title">On-chain module calls (${(r.onchain_observations||[]).length})</h3><div class="card">${onchainTable(r.onchain_observations||[])}</div>
+    <p class="footer-note">Current assessment: ${esc(pretty(risk))}. This is preliminary and rule-based unless a connected trained ML model is explicitly reported.</p>`;
+    bindCopyButtons();
+  }
+  function renderDecision(r){
+    const a=r.assessment||{},risk=a.reviewed_risk_level||a.preliminary_risk_level||'NOT ASSESSED',reviewed=String(a.reviewer_decision||'PENDING').toUpperCase()!=='PENDING';
+    $('decision-content').innerHTML=`<div class="grid two"><div class="card"><h3>Current assessment</h3><div class="score-panel"><div style="flex:1"><div class="eyebrow">Preliminary risk level</div><div class="score-word">${esc(pretty(a.preliminary_risk_level||a.risk_level||'NOT ASSESSED'))}</div><p>${esc(a.interpretation||'Preliminary rule-based assessment; not an ML prediction or proof of exploitability.')}</p></div>${pill(a.assessment_status||'UNKNOWN')}</div>
+      <div class="grid three" style="margin-top:15px"><div class="module-box"><div class="tag">Findings</div><h4>${esc(a.findings_count??(r.security_findings||[]).length)}</h4></div><div class="module-box"><div class="tag">Decision</div><h4>${esc(pretty(a.reviewer_decision||'PENDING'))}</h4></div><div class="module-box"><div class="tag">Reviewed risk</div><h4>${esc(pretty(a.reviewed_risk_level||'Not set'))}</h4></div></div>
+      ${a.reviewer_notes?`<h3 class="section-title">Reviewer notes</h3><p>${esc(a.reviewer_notes)}</p>`:''}<h3 class="section-title">Evidence to consider</h3>${findingsList(r.security_findings||[])}</div>
+      <div class="card"><h3>${reviewed?'Review already recorded':'Record a human review'}</h3><p class="card-sub">${reviewed?'A decision has already been recorded; duplicate submission is disabled.':'Choose a decision and document the evidence behind it.'}</p>
+      ${reviewed?`<div class="notice good">Decision: <strong>${esc(pretty(a.reviewer_decision))}</strong><p>Reviewed at: ${esc(fmt(a.reviewed_at))}<br>Reviewed risk: ${esc(pretty(a.reviewed_risk_level))}</p></div>`:`<form id="review-form"><div class="field-grid"><div class="field"><label for="review-decision">Decision</label><select id="review-decision" required><option value="">Choose decision…</option><option value="APPROVE">Approve</option><option value="REJECT">Reject</option></select></div><div class="field"><label for="review-risk">Reviewed risk level</label><select id="review-risk" required><option value="">Choose risk…</option><option>LOW</option><option>MEDIUM</option><option>HIGH</option><option>CRITICAL</option></select></div><div class="field full"><label for="review-notes">Reviewer notes (required)</label><textarea id="review-notes" required placeholder="Explain the evidence, investigation, and any required mitigation…"></textarea></div></div><div class="form-actions"><button class="primary" type="submit">Submit review</button></div></form>`}
+      <p class="footer-note">A review is an auditable human decision, not proof that all vulnerabilities have been ruled out.</p>
+      ${a.blockchain_status?`<div class="notice" style="margin-top:12px">Blockchain publication: <strong>${esc(pretty(a.blockchain_status))}</strong><p>${esc(a.blockchain_transaction_hash||'')}</p>${esc(a.blockchain_error||'')}</div>`:''}</div></div>`;
+    const form=$('review-form');if(form)form.addEventListener('submit',async e=>{e.preventDefault();if(!currentId)return toast('Choose an integration first.');const body={decision:$('review-decision').value,notes:$('review-notes').value.trim(),reviewed_risk_level:$('review-risk').value};if(!body.decision||!body.notes||!body.reviewed_risk_level)return toast('Complete all review fields.');try{let assessmentId=a.assessment_id;if(!assessmentId){const created=await api(`/assessments/${encodeURIComponent(currentId)}`,{method:'POST'});const obj=created.assessment||created;assessmentId=obj.assessment_id||obj.id;if(!assessmentId)throw new Error('Assessment creation did not return an assessment_id; review was not submitted.');}await api(`/assessments/${encodeURIComponent(assessmentId)}/review`,{method:'POST',body:JSON.stringify(body)});toast('Review submitted. Reloading evidence…');await loadReport();}catch(err){toast(err.message);}});
+  }
+  function renderReport(r){
+    r=reportScopedEvidence(r);
+    const i=r.integration||{},a=r.assessment||{},p=r.performance_analysis||{};
+    $('report-content').innerHTML=`<div class="card"><div class="page-head" style="margin-bottom:12px"><div><div class="eyebrow">Integration report</div><h2 style="font-size:21px;margin-top:5px">${esc(i.existing_module||'Existing module')} + ${esc(i.proposed_module||'Proposed module')}</h2><p>ID ${esc(i.integration_id||currentId)} · Network ${esc(i.network||'—')} · ${esc(fmt(i.start_time))} to ${esc(fmt(i.end_time))}</p></div><div>${pill(i.status)}</div></div>${!['COMPLETED','FAILED','POST_ANALYSIS','FINALIZED'].includes(String(i.status||'').toUpperCase())?`<div class="notice warn"><strong>Incomplete integration record.</strong><p>This report belongs to a ${esc(pretty(i.status||'unknown'))} integration. Missing assessment/profile/performance data must not be interpreted as a safe result.</p></div>`:''}<div class="grid three"><div><div class="tiny">Preliminary risk</div><strong>${esc(pretty(a.preliminary_risk_level||a.risk_level||'NOT ASSESSED'))}</strong></div><div><div class="tiny">Human decision</div><strong>${esc(pretty(a.reviewer_decision||'PENDING'))}</strong></div><div><div class="tiny">Findings</div><strong>${esc(a.findings_count??(r.security_findings||[]).length)}</strong></div></div></div>
+    <h3 class="section-title">1. Assessment interpretation</h3><div class="card"><p>${esc(a.interpretation||'No assessment interpretation was returned.')}</p><div class="notice warn">The preliminary risk level is not an ML prediction or proof of exploitability. Review the supporting evidence before making a decision.</div></div>
+    <h3 class="section-title">2. Module profile</h3><div class="card">${moduleSummary(r.module_profiles||[])}</div>
+    <h3 class="section-title">3. Performance analysis</h3><div class="card"><div class="grid three"><div><div class="tiny">Baseline CPU</div><h3>${esc(num(p.baseline_cpu))}%</h3></div><div><div class="tiny">Average runtime CPU</div><h3>${esc(num(p.average_runtime_cpu))}%</h3><div class="tiny">Change ${esc(num(p.cpu_change))} pp</div></div><div><div class="tiny">Average runtime memory</div><h3>${esc(num(p.average_runtime_memory))}%</h3><div class="tiny">Change ${esc(num(p.memory_change))} pp</div></div></div><p class="tiny">Runtime samples: ${esc(p.runtime_sample_count??'—')} · Runtime errors: ${esc(p.total_runtime_errors??'—')}</p></div>
+    <h3 class="section-title">4. Security findings</h3><div class="card">${findingsList(r.security_findings||[])}</div>
+    <h3 class="section-title">5. Runtime metric history</h3><div class="card">${metricsTable(r.metrics||[])}</div>
+    <h3 class="section-title">6. Blockchain transactions</h3><div class="card">${txTable(r.blockchain_transactions||[])}</div>
+    <h3 class="section-title">7. On-chain observations</h3><div class="card">${onchainTable(r.onchain_observations||[])}</div>
+    <h3 class="section-title">8. Lifecycle events</h3><div class="card">${eventsTimeline(r.events||[])}</div>
+    <h3 class="section-title">9. Reviewer record & publication</h3><div class="card"><div class="grid two"><div><div class="tiny">Reviewer decision</div><strong>${esc(pretty(a.reviewer_decision||'PENDING'))}</strong><p class="muted">${esc(a.reviewer_notes||'No reviewer notes recorded.')}</p><div class="tiny">Reviewed at: ${esc(fmt(a.reviewed_at))} · Reviewed risk: ${esc(pretty(a.reviewed_risk_level||'Not set'))}</div></div><div><div class="tiny">Blockchain publication status</div><strong>${esc(pretty(a.blockchain_status||'Not reported'))}</strong><p class="muted">Registry: ${esc(a.blockchain_registry_address||'—')}</p><p class="mono">${esc(a.blockchain_transaction_hash||'No publication transaction reported')}</p><p class="tiny">${esc(a.blockchain_error||'')}</p></div></div></div>
+    <h3 class="section-title">10. ML report</h3>${mlPanel(a)}`;
+    bindCopyButtons();
+  }
+  function bindCopyButtons(){document.querySelectorAll('.copy-hash').forEach(b=>{if(!b.dataset.bound){b.dataset.bound='1';b.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(b.dataset.hash);toast('Transaction hash copied.');}catch{toast(b.dataset.hash);}});}});}
+
+async function loadReport() {
+  if (!currentId) {
+    renderNoSelection();
+    return;
+  }
+
+  try {
+    let r = await api(
+      `/integrations/${encodeURIComponent(currentId)}/report`
+    );
+
+    const integration = r.integration || {};
+    const status = String(integration.status || '').toUpperCase();
+    const finished = [
+      'COMPLETED', 'FAILED', 'POST_ANALYSIS', 'FINALIZED'
+    ].includes(status);
+
+    // Create an assessment only for a finished integration when absent.
+    if (
+      finished &&
+      !r.assessment &&
+      !assessmentCreateAttempts.has(currentId)
+    ) {
+      assessmentCreateAttempts.add(currentId);
+
+      try {
+        await api(`/assessments/${encodeURIComponent(currentId)}`, {
+          method: 'POST'
+        });
+
+        r = await api(
+          `/integrations/${encodeURIComponent(currentId)}/report`
+        );
+      } catch (e) {
+        console.warn('Assessment creation:', e);
+      }
+    }
+
+    // Fetch the full assessment, including its ML result.
+    const assessmentId = r.assessment?.assessment_id;
+
+    if (assessmentId) {
+      try {
+        const full = await api(
+          `/assessments/${encodeURIComponent(assessmentId)}`
+        );
+        console.log('RAW FULL ASSESSMENT RESPONSE:', JSON.stringify(full, null, 2));
+        r.assessment = {
+          ...(r.assessment || {}),
+          ...(full.assessment || full)
+        };
+      } catch (e) {
+        console.warn('ML assessment details:', e);
+      }
+    } else if (finished) {
+      try {
+        const full = await api(
+          `/assessments/${encodeURIComponent(currentId)}`
+        );
+
+        const data = full.assessment || full;
+
+        if (data.ml_result || data.assessment_id) {
+          r.assessment = {
+            ...(r.assessment || {}),
+            ...data
+          };
+        }
+      } catch (e) {
+        console.warn('ML assessment lookup:', e);
+      }
+    }
+
+    reportData = r;
+
+    renderOverview(r);
+    renderMachine(r);
+    renderDecision(r);
+
+    // Render ML results without destroying the page header or navigation.
+
+    // Render the ML result from the full assessment API response.
+    // Fetch ML result directly from the assessment endpoint.
+// Render the ML page using the same assessment data as the complete report.
+const mlContent = $('ml-live-content');
+
+if (mlContent) {
+  mlContent.innerHTML = mlPanel(r.assessment || {});
+}
+    const scoped = reportScopedEvidence(r);
+
+    renderReport(r);
+
+    $('timeline-content').innerHTML =
+      eventsTimeline(scoped.events || []);
+
+    setApi(true, 'API connected');
+
+  } catch (e) {
+    console.error('Report loading failed:', e);
+    toast(`Could not load report: ${e.message}`);
+
+    [
+      'overview-content',
+      'machine-content',
+      'decision-content',
+      'report-content',
+      'timeline-content'
+    ].forEach(id => {
+      const el = $(id);
+      if (el) el.innerHTML = empty(e.message);
+    });
+  }
+}
+
+$('create-form').addEventListener('submit', async e => {
+  e.preventDefault();
+
+  const body = {
+    existing_module: $('existing').value.trim(),
+    proposed_module: $('proposed').value.trim(),
+    network: $('network').value
+  };
+
+  const address = $('contract-address').value.trim();
+  if (address) body.contract_address = address;
+
+  try {
+    const data = await api('/integrations', {
+      method: 'POST',
+      body: JSON.stringify(body)
+    });
+
+    const obj = data.integration || data;
+    const id = obj.integration_id || data.integration_id;
+
+    if (!id) {
+      throw new Error('API did not return an integration_id.');
+    }
+
+    toast(`Integration ${id} created.`);
+    $('create-form').reset();
+    await loadIntegrations(id);
+    showPage('overview');
+
+  } catch (err) {
+    toast(`Create failed: ${err.message}`);
+  }
+});
+
+const actionPaths = {
+  start: id => ({
+    path: `/integrations/${encodeURIComponent(id)}/start`,
+    method: 'POST'
+  }),
+
+  'begin-monitoring': id => ({
+    path: `/integrations/${encodeURIComponent(id)}/begin-monitoring`,
+    method: 'POST'
+  }),
+
+  'runtime-samples': id => ({
+    path: `/integrations/${encodeURIComponent(id)}/runtime-samples?sample_count=3&interval_seconds=1`,
+    method: 'POST'
+  }),
+
+  complete: id => ({
+    path: `/integrations/${encodeURIComponent(id)}/complete`,
+    method: 'POST'
+  }),
+
+  analyze: id => ({
+    path: `/integrations/${encodeURIComponent(id)}/analyze`,
+    method: 'POST'
+  }),
+
+  'security-analysis': id => ({
+    path: `/integrations/${encodeURIComponent(id)}/security-analysis`,
+    method: 'POST'
+  }),
+
+  finalize: id => ({
+    path: `/integrations/${encodeURIComponent(id)}/finalize`,
+    method: 'POST'
+  })
+};
+
+document.querySelectorAll('.action-api').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    if (!currentId) {
+      return toast('Choose an integration first.');
+    }
+
+    const config = actionPaths[btn.dataset.action](currentId);
+
+    if (!config) {
+      return toast('Unknown integration action.');
+    }
+
+    btn.disabled = true;
+    const old = btn.textContent;
+    btn.textContent = 'Working…';
+
+    try {
+      await api(config.path, { method: config.method });
+      toast(`${old.replace(/^\d+\s*·\s*/, '')} completed.`);
+      await loadReport();
+
+    } catch (err) {
+      toast(`Action failed: ${err.message}`);
+
+    } finally {
+      btn.disabled = false;
+      btn.textContent = old;
+    }
+  });
+});
+
+$('download-json').addEventListener('click', () => {
+  if (!reportData) return toast('Load a report first.');
+
+  const blob = new Blob(
+    [JSON.stringify(reportData, null, 2)],
+    { type: 'application/json' }
+  );
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+
+  a.href = url;
+  a.download = `${currentId || 'integration'}-report.json`;
+  a.click();
+
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+
+$('print-report').addEventListener('click', () => {
+  if (!reportData) return toast('Load a report first.');
+
+  showPage('report');
+  window.print();
+});
+
+health();
+loadIntegrations();
+})();
+
+</script>
+</body>
+</html>
