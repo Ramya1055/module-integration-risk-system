@@ -9,7 +9,10 @@ from database.models import (
     SecurityFinding,
     BlockchainTransaction,
     OnchainObservation,
+    OnchainObservation,
+    Assessment,
 )
+
 
 
 def generate_integration_report(
@@ -63,9 +66,18 @@ def generate_integration_report(
     performance = (
         db.query(PerformanceAnalysis)
         .filter(
-            PerformanceAnalysis.integration_id
-            == integration_id
+            PerformanceAnalysis.integration_id == integration_id
         )
+        .order_by(PerformanceAnalysis.id.desc())
+        .first()
+    )
+
+    assessment = (
+        db.query(Assessment)
+        .filter(
+            Assessment.integration_id == integration_id
+        )
+        .order_by(Assessment.id.desc())
         .first()
     )
 
@@ -108,7 +120,25 @@ def generate_integration_report(
             "start_time": integration.start_time,
             "end_time": integration.end_time,
         },
-
+        "assessment": (
+            {
+                "assessment_id": assessment.assessment_id,
+                "assessment_status": assessment.assessment_status,
+                "preliminary_risk_level": assessment.risk_level,
+                "findings_count": assessment.findings_count,
+                "reviewer_decision": assessment.reviewer_decision,
+                "reviewer_notes": assessment.reviewer_notes,
+                "reviewed_at": assessment.reviewed_at,
+                "reviewed_risk_level": assessment.reviewed_risk_level,
+                "created_at": assessment.created_at,
+                "interpretation": (
+                    "Preliminary rule-based assessment; not an ML "
+                    "prediction or proof of exploitability."
+                ),
+            }
+            if assessment
+            else None
+        ),
         "module_profiles": [
             {
                 "module_name": profile.module_name,

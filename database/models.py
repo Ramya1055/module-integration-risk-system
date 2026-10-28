@@ -545,3 +545,23 @@ class Assessment(Base):
         DateTime,
         nullable=True,
     )
+    blockchain_status: Mapped[str | None] = mapped_column(
+        String(30),
+        nullable=True,
+    )
+    blockchain_registry_address: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+    )
+    blockchain_transaction_hash: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+    )
+    blockchain_report_hash: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+    )
+    blockchain_error: Mapped[str | None] = mapped_column(
+        String(2000),
+        nullable=True,
+    )

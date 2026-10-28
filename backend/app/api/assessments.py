@@ -1,13 +1,16 @@
-﻿from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-
+from blockchain.assessment_registry_service import (
+    publish_reviewed_assessment,
+)
 from database.db import SessionLocal
+from database.models import Assessment
 from security.assessment_service import (
     create_assessment,
     get_assessment,
     review_assessment,
 )
-
+from security.ml_prediction_service import predict_integration_risk
 router = APIRouter(
     prefix="/assessments",
     tags=["Assessments"],
@@ -22,7 +25,7 @@ def get_db():
         db.close()
 
 
-def assessment_response(assessment):
+def assessment_response(assessment, db=None):
     return {
         "assessment_id": assessment.assessment_id,
         "integration_id": assessment.integration_id,
@@ -35,7 +38,32 @@ def assessment_response(assessment):
         "reviewer_notes": assessment.reviewer_notes,
         "reviewed_at": assessment.reviewed_at,
         "reviewed_risk_level": assessment.reviewed_risk_level,
+        "blockchain_status": assessment.blockchain_status,
+        "blockchain_registry_address": assessment.blockchain_registry_address,
+        "blockchain_transaction_hash": assessment.blockchain_transaction_hash,
+        "blockchain_report_hash": assessment.blockchain_report_hash,
+        "blockchain_error": assessment.blockchain_error,
+        "ml_result": (
+            predict_integration_risk(db, assessment.integration_id)
+            if db is not None
+            else {
+                "ml_status": "NOT_RUN",
+                "ml_prediction": None,
+                "ml_confidence": None,
+            }
+        ),
+
     }
+
+
+@router.get("")
+def list_assessments(db: Session = Depends(get_db)):
+    rows = (
+        db.query(Assessment)
+        .order_by(Assessment.id.desc())
+        .all()
+    )
+    return [assessment_response(item,db) for item in rows]
 
 
 @router.post("/{integration_id}")
@@ -45,7 +73,7 @@ def create_assessment_endpoint(
 ):
     try:
         assessment = create_assessment(db, integration_id)
-        return assessment_response(assessment)
+        return assessment_response(assessment,db)
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc))
 
@@ -58,7 +86,8 @@ def get_assessment_endpoint(
     assessment = get_assessment(db, assessment_id)
     if assessment is None:
         raise HTTPException(status_code=404, detail="Assessment not found")
-    return assessment_response(assessment)
+    return assessment_response(assessment,db)
+
 
 @router.post("/{assessment_id}/review")
 def review_assessment_endpoint(
@@ -74,8 +103,45 @@ def review_assessment_endpoint(
             notes=payload.get("notes", ""),
             reviewed_risk_level=payload.get("reviewed_risk_level", ""),
         )
-        return assessment_response(assessment)
+
+        try:
+            blockchain_result = publish_reviewed_assessment(assessment)
+
+            assessment.blockchain_status = blockchain_result.get(
+                "onchain_status", "UNKNOWN"
+            )
+            assessment.blockchain_registry_address = (
+                blockchain_result.get("registry_address")
+            )
+            assessment.blockchain_transaction_hash = (
+                blockchain_result.get("transaction_hash")
+            )
+            assessment.blockchain_report_hash = (
+                blockchain_result.get("report_hash")
+            )
+            assessment.blockchain_error = None
+
+        except Exception as exc:
+            blockchain_result = {
+                "onchain_status": "FAILED",
+                "error": str(exc),
+                "module_approval": False,
+            }
+            assessment.blockchain_status = "FAILED"
+            assessment.blockchain_error = str(exc)[:2000]
+
+        # Persist publication success or failure separately from the review.
+        db.add(assessment)
+        db.commit()
+        db.refresh(assessment)
+
+        response = assessment_response(assessment, db)
+        response["blockchain"] = blockchain_result
+        return response
+
     except LookupError as exc:
+        db.rollback()
         raise HTTPException(status_code=404, detail=str(exc))
     except ValueError as exc:
+        db.rollback()
         raise HTTPException(status_code=400, detail=str(exc))
